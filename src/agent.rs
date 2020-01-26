@@ -121,6 +121,24 @@ impl Agent {
             ))
         }
     }
+
+    /// Allows a custom agent socket path beyond SSH_AUTH_SOCK env.
+    pub fn set_identity_path(&mut self, path: &str) {
+        unsafe {
+            raw::libssh2_agent_set_identity_path(
+                self.raw,
+                path.as_ptr() as *const _,
+            )
+        }
+    }
+
+    /// Returns the custom agent socket path if set.
+    pub fn get_identity_path(&self) -> Option<&str> {
+        unsafe {
+            let ptr = raw::libssh2_agent_get_identity_path(self.raw);
+            ::opt_bytes(self, ptr).and_then(|s| str::from_utf8(s).ok())
+        }
+    }
 }
 
 impl Drop for Agent {
